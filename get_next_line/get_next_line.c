@@ -1,12 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bszabo <bszabo@student.42vienna.com>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/10/09 11:14:19 by bszabo            #+#    #+#             */
+/*   Updated: 2023/10/09 11:14:28 by bszabo           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
-char	*handle_read(int fd, char *str, int bytes_read)
+char	*handle_read(int fd, char *str)
 {
 	char	*temp;
+	int		bytes_read;
 
-	temp = (char *)malloc(BUFFER_SIZE + 1);
+	temp = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!temp)
 		return (NULL);
+	bytes_read = 1;
 	while (!ft_strchr(str, '\n') && bytes_read != 0)
 	{
 		bytes_read = read(fd, temp, BUFFER_SIZE);
@@ -17,11 +31,6 @@ char	*handle_read(int fd, char *str, int bytes_read)
 		}
 		temp[bytes_read] = '\0';
 		str = ft_strjoin(str, temp);
-		if (!str)
-		{
-			free(temp);
-			return (NULL);
-		}
 	}
 	free(temp);
 	return (str);
@@ -33,64 +42,58 @@ char	*get_line(char *str)
 	char	*line;
 
 	i = 0;
-	while (str[i] != '\n')
+	if (!str[i])
+		return (NULL);
+	while (str[i] && str[i] != '\n')
 		i++;
-	line = (char *)malloc((i + 1) * sizeof(char));
+	line = (char *)malloc(sizeof(char) * (i + 2));
 	if (!line)
 		return (NULL);
 	i = 0;
-	while (str[i] != '\n')
+	while (str[i] && str[i] != '\n')
 	{
 		line[i] = str[i];
 		i++;
 	}
+	if (str[i] == '\n')
+		line[i++] = '\n';
 	line[i] = '\0';
 	return (line);
 }
 
-char	*rm_prev_line(char *str)
+char	*handle_rest(char *str)
 {
 	int		i;
 	int		j;
-	char	*next_line;
+	char	*rest;
 
 	i = 0;
-	while (str[i] != '\n')
+	while (str[i] && str[i] != '\n')
 		i++;
-	i++;
-	next_line = (char *)malloc((ft_strlen(str) - i + 1) * sizeof(char));
-	if (!next_line)
+	rest = (char *)malloc(sizeof(char) * (ft_strlen(str) - i + 1));
+	if (!rest)
 		return (NULL);
+	i++;
 	j = 0;
 	while (str[i])
-		next_line[j++] = str[i++];
-	next_line[j] = '\0';
-	free(str);
-	return (next_line);
+		rest[j++] = str[i++];
+	rest[j] = '\0';
+	return (rest);
 }
 
 char	*get_next_line(int fd)
 {
 	static char	*str;
 	char		*line;
-	int			bytes_read;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	bytes_read = 1;
-	str = handle_read(fd, str, bytes_read);
+	str = handle_read(fd, str);
 	if (!str)
-	{
-		free(str);
 		return (NULL);
-	}
 	line = get_line(str);
-	if (!line)
-		return (NULL);
-	str = rm_prev_line(str);
-	if (!str)
-		return (NULL);
-	return (line);
+	str = handle_rest(str);
+	return (line);	
 }
 
 #include <fcntl.h>
@@ -98,8 +101,13 @@ char	*get_next_line(int fd)
 int main(void)
 {
 	int fd = open("./test1.txt", O_RDONLY);
-	char *line = get_next_line(fd);
-	printf("%s", line);
-	free(line);
+	char *line;
+
+	while ((line = get_next_line(fd)))
+    {
+        printf("Line: %s", line);
+        free(line);
+    }
+	close(fd);
 	return (0);
 }

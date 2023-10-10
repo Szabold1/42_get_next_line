@@ -70,6 +70,11 @@ char	*handle_rest(char *str)
 	i = 0;
 	while (str[i] && str[i] != '\n')
 		i++;
+	if (str[i] == '\0')
+	{
+		free(str);
+		return (NULL);
+	}
 	rest = (char *)malloc(sizeof(char) * (ft_strlen(str) - i + 1));
 	if (!rest)
 		return (NULL);
@@ -87,13 +92,6 @@ char	*get_next_line(int fd)
 	static char	*str;
 	char		*line;
 
-	if (!str)
-	{
-		str = (char *)malloc(sizeof(char) * 1);
-		if (!str)
-			return (NULL);
-		str[0] = '\0';
-	}
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	str = handle_read(fd, str);
@@ -101,7 +99,7 @@ char	*get_next_line(int fd)
 		return (NULL);
 	line = get_line(str);
 	str = handle_rest(str);
-	return (line);	
+	return (line);
 }
 /*
 #include <fcntl.h>

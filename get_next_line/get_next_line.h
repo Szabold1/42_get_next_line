@@ -17,13 +17,13 @@
 #  define BUFFER_SIZE 50
 # endif
 
-#include <unistd.h>
-#include <stdlib.h>
+# include <unistd.h>
+# include <stdlib.h>
 
 // helper functions
 char	*ft_strchr(const char *str, int c);
 size_t	ft_strlen(const char *str);
-char	*ft_strjoin(char const *s1, char const *s2);
+char	*ft_strjoin(char *s1, char *s2);
 
 // main functions
 char	*get_next_line(int fd);

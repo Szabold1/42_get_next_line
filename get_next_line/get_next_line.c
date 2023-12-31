@@ -12,6 +12,7 @@
 
 #include "get_next_line.h"
 
+// read from fd into str until there is a new line
 char	*handle_read(int fd, char *str)
 {
 	char	*temp;
@@ -36,6 +37,7 @@ char	*handle_read(int fd, char *str)
 	return (str);
 }
 
+// return a string until \n or end of string is reached
 char	*get_line(char *str)
 {
 	int		i;
@@ -61,6 +63,7 @@ char	*get_line(char *str)
 	return (line);
 }
 
+// return the string after \n
 char	*handle_rest(char *str)
 {
 	int		i;
@@ -77,7 +80,10 @@ char	*handle_rest(char *str)
 	}
 	rest = (char *)malloc(sizeof(char) * (ft_strlen(str) - i + 1));
 	if (!rest)
+	{
+		free(str);
 		return (NULL);
+	}
 	i++;
 	j = 0;
 	while (str[i])
@@ -87,6 +93,11 @@ char	*handle_rest(char *str)
 	return (rest);
 }
 
+// read from file descriptor fd and return the next line
+// 1. read from fd into str until there is a new line
+// 2. save string until \n into line
+// 3. update str to the string after \n
+// when function gets called again, it will remember str because of static
 char	*get_next_line(int fd)
 {
 	static char	*str;
@@ -98,6 +109,8 @@ char	*get_next_line(int fd)
 	if (!str)
 		return (NULL);
 	line = get_line(str);
+	if (!line)
+		return (NULL);
 	str = handle_rest(str);
 	return (line);
 }

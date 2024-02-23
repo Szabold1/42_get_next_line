@@ -12,108 +12,59 @@
 
 #include "get_next_line.h"
 
-// read from fd into str until there is a new line
-char	*handle_read(int fd, char *str)
+// read from 'fd' into 'line' until a newline is reached
+// return 0 if successful, -1 if an error occurred
+static int	read_line(int fd, char **line, char buffer[BUFFER_SIZE + 1])
 {
-	char	*temp;
-	int		bytes_read;
+	int	bytes_read;
 
-	temp = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!temp)
-		return (NULL);
 	bytes_read = 1;
-	while (!ft_strchr(str, '\n') && bytes_read != 0)
+	while (!ft_strchr(*line, '\n') && bytes_read > 0)
 	{
-		bytes_read = read(fd, temp, BUFFER_SIZE);
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read == -1)
-		{
-			free(temp);
-			return (NULL);
-		}
-		temp[bytes_read] = '\0';
-		str = ft_strjoin(str, temp);
+			return (-1);
+		buffer[bytes_read] = '\0';
+		*line = ft_strjoin(*line, buffer);
 	}
-	free(temp);
-	return (str);
+	if (ft_strlen(*line) == 0)
+		return (-1);
+	return (0);
 }
 
-// return a string until \n or end of string is reached
-char	*get_line(char *str)
+// cpy the 'next_line' into 'buffer' and correctly null-terminate 'line'
+static void	set_next_line(char *line, char buffer[BUFFER_SIZE + 1])
 {
-	int		i;
-	char	*line;
+	char	*next_line;
+	int		line_end;
 
-	i = 0;
-	if (!str[i])
-		return (NULL);
-	while (str[i] && str[i] != '\n')
-		i++;
-	line = (char *)malloc(sizeof(char) * (i + 2));
-	if (!line)
-		return (NULL);
-	i = 0;
-	while (str[i] && str[i] != '\n')
+	next_line = ft_strchr(line, '\n');
+	if (next_line)
 	{
-		line[i] = str[i];
-		i++;
+		line_end = next_line - line + 1;
+		ft_strlcpy(next_line + 1, buffer, BUFFER_SIZE + 1);
 	}
-	if (str[i] == '\n')
-		line[i++] = '\n';
-	line[i] = '\0';
-	return (line);
+	else
+	{
+		line_end = ft_strlen(line);
+		ft_strlcpy("", buffer, BUFFER_SIZE + 1);
+	}
+	line[line_end] = '\0';
 }
 
-// return the string after \n
-char	*handle_rest(char *str)
-{
-	int		i;
-	int		j;
-	char	*rest;
-
-	i = 0;
-	while (str[i] && str[i] != '\n')
-		i++;
-	if (str[i] == '\0')
-	{
-		free(str);
-		return (NULL);
-	}
-	rest = (char *)malloc(sizeof(char) * (ft_strlen(str) - i + 1));
-	if (!rest)
-	{
-		free(str);
-		return (NULL);
-	}
-	i++;
-	j = 0;
-	while (str[i])
-		rest[j++] = str[i++];
-	rest[j] = '\0';
-	free(str);
-	return (rest);
-}
-
-// read from file descriptor fd and return the next line
-// 1. read from fd into str until there is a new line
-// 2. save string until \n into line
-// 3. update str to the string after \n
-// when function gets called again, it will remember str because of static
+// read from 'fd' and return a line from the file
 char	*get_next_line(int fd)
 {
-	static char	*str;
+	static char	buffer[BUFFER_SIZE + 1];
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
-	str = handle_read(fd, str);
-	if (!str)
-		return (NULL);
-	line = get_line(str);
-	if (!line)
-		return (NULL);
-	str = handle_rest(str);
+	line = ft_strdup(buffer);
+	if (read_line(fd, &line, buffer) == -1)
+		return (free(line), NULL);
+	set_next_line(line, buffer);
 	return (line);
 }
+
 /*
 #include <fcntl.h>
 #include <stdio.h>

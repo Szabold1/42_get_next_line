@@ -6,7 +6,7 @@
 /*   By: bszabo <bszabo@student.42vienna.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/09 11:14:53 by bszabo            #+#    #+#             */
-/*   Updated: 2023/10/09 11:14:55 by bszabo           ###   ########.fr       */
+/*   Updated: 2024/02/26 17:18:42 by bszabo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ char	*ft_strdup(char *src)
 }
 
 // concatenate 's1' and 's2' into a new string and return a pointer to it
-char	*ft_strjoin(char *s1, char *s2)
+char	*gnl_strjoin(char *s1, char *s2)
 {
 	char	*str;
 	int		s1_len;

@@ -6,7 +6,7 @@
 /*   By: bszabo <bszabo@student.42vienna.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/09 11:14:19 by bszabo            #+#    #+#             */
-/*   Updated: 2023/10/09 11:14:28 by bszabo           ###   ########.fr       */
+/*   Updated: 2024/02/26 17:58:04 by bszabo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ static int	read_line(int fd, char **line, char buffer[BUFFER_SIZE + 1])
 		if (bytes_read == -1)
 			return (-1);
 		buffer[bytes_read] = '\0';
-		*line = ft_strjoin(*line, buffer);
+		*line = gnl_strjoin(*line, buffer);
 	}
 	if (ft_strlen(*line) == 0)
 		return (-1);
@@ -75,7 +75,7 @@ int main(void)
 
 	while ((line = get_next_line(fd)))
     {
-        printf("Line: %s", line);
+        printf("%s", line);
         free(line);
     }
 	close(fd);
